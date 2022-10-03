@@ -1,12 +1,13 @@
-import React, { useState, useEffect, FC } from 'react';
-import { useForm } from 'react-hook-form';
-import Spin from '../components/Spin';
-import { getCurrentUser, setCurrentUser } from '../helpers/helper';
-import SignUpModal from '../components/Modals/SignUpModal';
-import SignInModal from '../components/Modals/SignInModal';
-import RedeemCodeModal from '../components/Modals/RedeemCodeModal';
-import RewardModal from '../components/Modals/RewardModal';
-import { useAuth } from '../hooks/useAuth';
+import React, { useState, useEffect, FC } from "react";
+import { useForm } from "react-hook-form";
+import Spin from "../components/Spin";
+import { getCurrentUser, setCurrentUser } from "../helpers/helper";
+import SignUpModal from "../components/Modals/SignUpModal";
+import SignInModal from "../components/Modals/SignInModal";
+import RedeemCodeModal from "../components/Modals/RedeemCodeModal";
+import RewardModal from "../components/Modals/RewardModal";
+import { useAuth } from "../hooks/useAuth";
+import { useModal } from "../context/ModalContext";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -16,51 +17,9 @@ const IndexPage: FC = () => {
   const [isRewardModalOpen, setRewardModal] = useState(false);
   const [isOpenSignInModal, setOpenSignInModal] = useState(false);
   const [isLoading, setLoading] = useState(null);
-  const [user1, setUser] = useState(null);
-  const [codes, setCodes] = useState(null);
   const [winner, setWinner] = useState(null);
-  const { login, register: registerFn } = useAuth();
-
-  // const fetchCodes = async (userId) => {
-  //   const fetchCodes = await fetch(`${apiUrl}/codes-by-account?id=${userId}`, {
-  //     method: 'GET',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //   });
-
-  //   const codesResp = await fetchCodes.json();
-  //   setCodes(codesResp.codes);
-  // };
-
-  // useEffect(() => {
-  //   const user = getCurrentUser();
-
-  //   const getCurrentUserApi = async () => {
-  //     const id = user._id;
-  //     setLoading(true);
-  //     const res = await fetch(`${apiUrl}/users/${id}`, {
-  //       method: 'GET',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //     });
-
-  //     const json = await res.json();
-  //     setCurrentUser(JSON.stringify(json));
-  //     setUser(json);
-  //     setLoading(false);
-
-  //     if (json) {
-  //       fetchCodes(id);
-  //     }
-  //   };
-
-  //   if (user) {
-  //     getCurrentUserApi();
-  //   }
-  // }, []);
-
+  const { login, register: registerFn, user } = useAuth();
+  const { showModal } = useModal();
   const {
     register,
     handleSubmit,
@@ -68,41 +27,7 @@ const IndexPage: FC = () => {
     control,
     setError,
   } = useForm({
-    mode: 'all',
-  });
-
-  const onRegisterSubmit = handleSubmit(async (data) => {
-    data.phone = data.phone.replace(/[^0-9]+/g, '');
-
-    const finalData = JSON.parse(JSON.stringify(data));
-
-    setLoading(true);
-
-    try {
-      await registerFn(finalData);
-    } catch (err) {
-      setError('phone', {
-        type: 'wrong-code',
-        message: err.message,
-      });
-    }
-
-    setLoading(false);
-    // const res = await fetch(`${apiUrl}/users`, {
-    //   method: 'POST',
-    // headers: {
-    //   'Content-Type': 'application/json',
-    // },
-    //   body: JSON.stringify(finalData),
-    // });
-
-    // const user = await res.json();
-    // setCurrentUser(JSON.stringify(user));
-    // setOpenModal(false);
-    // setLoading(false);
-    // setUser(user);
-
-    // fetchCodes(user._id);
+    mode: "all",
   });
 
   const onRedeemCode = handleSubmit(async (data) => {
@@ -116,9 +41,9 @@ const IndexPage: FC = () => {
     setLoading(true);
 
     const resp = await fetch(`${apiUrl}/redeem-code`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(finalData),
     });
@@ -127,16 +52,32 @@ const IndexPage: FC = () => {
 
     setLoading(false);
     if (jsonResponse.error) {
-      setError('code', { type: 'wrong-code', message: jsonResponse.error });
+      setError("code", { type: "wrong-code", message: jsonResponse.error });
     } else {
       setCurrentUser(JSON.stringify(jsonResponse));
       setOpenCodeInputModal(false);
-      setUser(jsonResponse);
+      // setUser(jsonResponse);
       // fetchCodes(jsonResponse._id);
     }
   });
 
-  const onLoginSubmit = () => {};
+  const handleSpinClick = async (callback: () => void) => {
+    if (!user) {
+      return showModal(<SignUpModal />);
+    }
+
+    if (true) {
+      return showModal(<RedeemCodeModal />);
+    }
+    // if (user && user.points === 0) {
+    // return showModal(RedeemCodeModal);
+    // return setOpenCodeInputModal(true);
+    // }
+
+    callback();
+    // if (mustSpin) return;
+    // setMustSpin(true);
+  };
 
   return (
     <div className="App">
@@ -145,12 +86,13 @@ const IndexPage: FC = () => {
           setOpenSignUpModal={setOpenModal}
           setOpenRewardModal={setRewardModal}
           setOpenCodeInputModal={setOpenCodeInputModal}
-          userProps={user1}
-          setUser={setUser}
+          // userProps={user1}
+          // setUser={setUser}
           // fetchCodes={fetchCodes}
           getWinner={setWinner}
+          handleSpinClick={handleSpinClick}
         />
-        <SignUpModal
+        {/* <SignUpModal
           isLoading={isLoading}
           onSubmit={onRegisterSubmit}
           setOpenModal={setOpenModal}
@@ -158,8 +100,8 @@ const IndexPage: FC = () => {
           errors={errors}
           control={control}
           register={register}
-        />
-        <SignInModal
+        /> */}
+        {/* <SignInModal
           isLoading={isLoading}
           onSubmit={onLoginSubmit}
           setOpenModal={setOpenSignInModal}
@@ -178,11 +120,11 @@ const IndexPage: FC = () => {
           register={register}
         />
         <RewardModal
-          user={user1}
+          // user={user1}
           winner={winner}
           setOpenModal={setRewardModal}
           isOpenModal={isRewardModalOpen}
-        />
+        /> */}
       </div>
     </div>
   );

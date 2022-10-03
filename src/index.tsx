@@ -3,16 +3,14 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { ReactQueryProvider } from './lib/react-query';
-import { AuthProvider } from './hooks/useAuth';
 
 ReactDOM.render(
   <React.StrictMode>
-    <ReactQueryProvider>
-      <AuthProvider>
+    {/* <ReactQueryProvider>
+      <AuthProvider> */}
         <App />
-      </AuthProvider>
-    </ReactQueryProvider>
+      {/* </AuthProvider>
+    </ReactQueryProvider> */}
   </React.StrictMode>,
   document.getElementById('root')
 );

@@ -1,57 +1,60 @@
-import React, { FC } from 'react';
-import formData from '../../helpers/loginForm';
-import Form from '../Form';
-import FormInput from '../FormInput';
-import Modal from './Modal';
-import { UseFormReturn, Control, FieldErrorsImpl } from 'react-hook-form';
+import React, { FC } from "react";
+import formData from "../../helpers/loginForm";
+import Form from "../Form";
+import FormInput from "../FormInput";
+import { useForm } from "react-hook-form";
+import { useModal } from "../../context/ModalContext";
+import { useAuth } from "../../hooks/useAuth";
 
-interface SignInModalProps {
-  setOpenModal: (status: boolean) => void;
-  onSubmit: () => void;
-  isOpenModal: boolean;
-  isLoading: boolean;
-  register?: UseFormReturn['register'];
-  errors?: FieldErrorsImpl;
-  control?: Control;
-}
+const SignInModal: FC = () => {
+  const { login } = useAuth();
+  const { hideModal } = useModal();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+    setError,
+  } = useForm({
+    mode: "all",
+  });
 
-const SignInModal: FC<SignInModalProps> = ({
-  setOpenModal,
-  isOpenModal,
-  onSubmit,
-  isLoading,
-  register,
-  errors,
-  control,
-}) => {
-  const renderInformationForm = () => {
-    return (
-      <Form submit={onSubmit} loading={isLoading}>
-        {formData.map((field, i) => {
-          const { placeholder, type, rules, name, id } = field;
-          return (
-            <FormInput
-              key={i}
-              id={id}
-              type={type}
-              name={name}
-              label={placeholder}
-              className="mb-2 form-control"
-              register={register}
-              rules={rules}
-              errors={errors}
-              control={control}
-            />
-          );
-        })}
-      </Form>
-    );
-  };
+  const onSubmit = handleSubmit(async (data) => {
+    const finalData = JSON.parse(JSON.stringify(data));
+
+    try {
+      await login(finalData);
+      hideModal();
+    } catch (err) {
+      setError("phone", {
+        type: "wrong-code",
+        message: err?.response?.data[0],
+      });
+    }
+  });
 
   return (
-    <Modal title="Đăng nhập" setModalState={setOpenModal} isOpen={isOpenModal}>
-      {renderInformationForm()}
-    </Modal>
+    <Form submit={onSubmit} loading={false}>
+      <h5 className="text-center font-bold text-2xl">Form Đăng Nhập</h5>
+
+      {formData.map((field, i) => {
+        const { placeholder, type, rules, name, id } = field;
+        return (
+          <FormInput
+            key={i}
+            id={id}
+            type={type}
+            name={name}
+            label={placeholder}
+            className="mb-2 form-control"
+            register={register}
+            rules={rules}
+            errors={errors}
+            control={control}
+          />
+        );
+      })}
+    </Form>
   );
 };
 

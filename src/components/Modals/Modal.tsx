@@ -3,22 +3,27 @@ import { FC, Fragment } from 'react';
 
 interface ModalComponentProps {
   title?: string;
-  setModalState: (status: boolean) => void;
+  // setModalState: (status: boolean) => void;
   isOpen: boolean;
+  modalContent?: any;
+  hideModal: () => void;
 }
 
 const Modal: FC<ModalComponentProps> = ({
-  title,
-  setModalState,
-  children,
+  // title,
+  // setModalState,
+  // children,
+  modalContent,
   isOpen,
+  hideModal,
 }) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
         as="div"
         className="relative z-10"
-        onClose={() => setModalState(false)}
+        // onClose={() => setModalState(false)}
+        onClose={hideModal}
       >
         <Transition.Child
           as={Fragment}
@@ -45,22 +50,21 @@ const Modal: FC<ModalComponentProps> = ({
             >
               <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                 <div
-                  className="absolute top-5 right-5 bg-gray-300 p-3 rounded-full hover:bg-gray-400 transition-all cursor-pointer"
-                  onClick={() => setModalState(false)}
+                  className="absolute top-5 right-5 p-3 rounded-full hover:bg-gray-200 transition-all cursor-pointer"
+                  onClick={hideModal}
                 >
                   <img
                     src="https://iconape.com/wp-content/png_logo_vector/cross-2.png"
                     className="h-3 w-3"
-                    alt="cross"
                   />
                 </div>
                 <Dialog.Title
                   as="h3"
                   className="font-bold text-2xl text-center text-gray-900"
                 >
-                  {title}
+                  {/* {title} */}
                 </Dialog.Title>
-                <div className="mt-2">{children}</div>
+                <div className="mt-2">{modalContent}</div>
               </Dialog.Panel>
             </Transition.Child>
           </div>

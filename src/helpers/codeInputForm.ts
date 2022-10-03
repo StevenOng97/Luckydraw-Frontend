@@ -12,8 +12,8 @@ interface FormDataType {
 
 const formData: FormDataType[] = [
   {
-    id: 'code',
-    name: 'code',
+    id: 'value',
+    name: 'value',
     placeholder: 'Mã code',
     type: 'text',
     rules: {
